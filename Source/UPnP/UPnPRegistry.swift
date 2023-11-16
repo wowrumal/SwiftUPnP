@@ -58,9 +58,9 @@ public class UPnPRegistry {
     private lazy var eventPublisher: AnyPublisher<(String, Data), Never> = {
         eventSubject.share().eraseToAnyPublisher()
     }()
-    private let types: [String]
-    
-    public init(
+    private var types: [String]
+
+    init(
         types: [String] = ["urn:schemas-upnp-org:device:MediaServer:1", "urn:linn-co-uk:device:Source:1", "urn:av-openhome-org:device:Source:1"],
         httpServerPortRange: Range<UInt16> = 51000..<51099
     ) {
@@ -83,7 +83,14 @@ public class UPnPRegistry {
             return HttpResponse.ok(.text(""))
         }
     }
-    
+
+    public func replaceTypes(with newTypes: [String]) {
+        self.types = newTypes.filter { $0.contains(":device:") }
+        if self.types.count != newTypes.count {
+            Logger.swiftUPnP.error("Only device types are discovered, service types will be discovered indirectly from the device description. Non-device types will be filtered.")
+        }
+    }
+
     public func startDiscovery() throws {
         Task {
             await startHTTPServerIfNotRunning()
