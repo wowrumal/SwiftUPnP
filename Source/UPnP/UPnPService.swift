@@ -59,7 +59,7 @@ public class UPnPService: Equatable, Identifiable, Hashable {
     private var serviceDefinition: UPnPServiceDefinition?
     
     private let eventPublisher: AnyPublisher<(String, Data), Never>
-    internal lazy var subscribedEventPublisher: AnyPublisher<Data, Never> = {
+    public lazy var subscribedEventPublisher: AnyPublisher<Data, Never> = {
         eventPublisher.share()
             .filter { [weak self] in
                 self?.subscriptionId == $0.0
